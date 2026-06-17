@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  password  String
+  role      String   @default("USER") // USER, AGENT, ADMIN
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model InsuranceProvider {
+  id          String            @id @default(uuid())
+  name        String            @unique
+  description String?
+  logoUrl     String?
+  website     String?
+  rating      Float?            @default(0.0)
+  policies    InsurancePolicy[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@map("insurance_providers")
+}
+
+model InsurancePolicy {
+  id             String            @id @default(uuid())
+  name           String
+  type           String            // HEALTH, AUTO, LIFE, HOME, etc.
+  premium        Float             // Monthly/yearly premium cost
+  coverageAmount Float             // Max coverage amount
+  description    String?
+  providerId     String
+  provider       InsuranceProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  @@map("insurance_policies")
+}
