@@ -9,43 +9,80 @@ datasource db {
   provider = "postgresql"
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  name      String?
+  id        String      @id @default(uuid())
+  phone     String      @unique
   password  String
-  role      String   @default("USER") // USER, AGENT, ADMIN
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  role      Role        @default(USER)
+  createdAt DateTime    @default(now())
+  profile   Profile?
+  documents Document[]
+  preference Preference?
 
   @@map("users")
 }
 
-model InsuranceProvider {
-  id          String            @id @default(uuid())
-  name        String            @unique
-  description String?
-  logoUrl     String?
-  website     String?
-  rating      Float?            @default(0.0)
-  policies    InsurancePolicy[]
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+model Profile {
+  id            String    @id @default(uuid())
+  userId        String    @unique
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName      String
+  gender        String
+  dob           DateTime
+  height        Float?
+  caste         String?
+  religion      String?
+  education     String?
+  occupation    String?
+  income        Float?
+  district      String
+  interests     String[]
+  bio           String?
 
-  @@map("insurance_providers")
+  maleMatches   Match[]   @relation("MaleMatches")
+  femaleMatches Match[]   @relation("FemaleMatches")
+
+  @@map("profiles")
 }
 
-model InsurancePolicy {
-  id             String            @id @default(uuid())
-  name           String
-  type           String            // HEALTH, AUTO, LIFE, HOME, etc.
-  premium        Float             // Monthly/yearly premium cost
-  coverageAmount Float             // Max coverage amount
-  description    String?
-  providerId     String
-  provider       InsuranceProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
+model Document {
+  id                 String   @id @default(uuid())
+  userId             String
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documentType       String
+  documentUrl        String
+  verificationStatus String   @default("PENDING")
 
-  @@map("insurance_policies")
+  @@map("documents")
+}
+
+model Preference {
+  id                 String   @id @default(uuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  preferredAgeMin    Int?
+  preferredAgeMax    Int?
+  preferredCaste     String?
+  preferredReligion  String?
+  preferredEducation String?
+  preferredLocation  String?
+
+  @@map("preferences")
+}
+
+model Match {
+  id              String   @id @default(uuid())
+  maleProfileId   String
+  femaleProfileId String
+  maleProfile     Profile  @relation("MaleMatches", fields: [maleProfileId], references: [id], onDelete: Cascade)
+  femaleProfile   Profile  @relation("FemaleMatches", fields: [femaleProfileId], references: [id], onDelete: Cascade)
+  matchScore      Float
+  status          String   @default("PENDING")
+
+  @@map("matches")
 }
