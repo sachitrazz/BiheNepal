@@ -2,11 +2,26 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const prisma = require("./config/database");
+const authRoutes = require("./routes/authRoutes");
+const profileRoutes = require("./routes/profileRoutes");
+const preferenceRoutes = require("./routes/preferenceRoutes");
+const matchRoutes = require("./routes/matchRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+app.get("/test", (req, res) => {
+  res.json({ message: "API works" });
+});
+
+app.use("/auth", authRoutes);
+app.use("/profile", profileRoutes);
+app.use("/preferences", preferenceRoutes);
+app.use("/matches", matchRoutes);
+app.use("/admin", adminRoutes);
 
 app.get("/", (req, res) => {
   res.send("Bihe Nepal Backend Running");
@@ -29,4 +44,4 @@ async function startServer() {
   });
 }
 
-startServer();
+startServer();
