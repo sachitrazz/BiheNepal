@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(cuid())
+  phone     String    @unique
+  role      String    @default("user")
+  createdAt DateTime  @default(now())
+  profile   Profile?
+  documents Document[]
+}
+
+model Profile {
+  id                  String   @id @default(cuid())
+  user                User     @relation(fields: [userId], references: [id])
+  userId              String   @unique
+  gender              String?
+  dateOfBirth         DateTime?
+  height              String?
+  religion            String?
+  caste               String?
+  motherTongue        String?
+  highestQualification String?
+  college             String?
+  occupation          String?
+  incomeRange         String?
+  smoking             String?
+  drinking            String?
+  diet                String?
+  district            String?
+  province            String?
+  country             String?
+  preferredAgeMin     Int?
+  preferredAgeMax     Int?
+  preferredReligion   String?
+  preferredCaste      String?
+  preferredEducation  String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model Document {
+  id                 String   @id @default(cuid())
+  user               User     @relation(fields: [userId], references: [id])
+  userId             String
+  documentType       String
+  documentUrl        String
+  verificationStatus String   @default("pending")
+  createdAt          DateTime @default(now())
+}
